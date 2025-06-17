@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz de Biologia</title>
+    <!-- Link para o arquivo CSS externo -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body class="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div id="quiz-container" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-lg border border-gray-200">
+        <h1 class="text-4xl font-extrabold text-center text-gray-900 mb-8 font-sans">
+            Quiz de Biologia
+        </h1>
+
+        <div id="quiz-content">
+            <!-- As perguntas e opções serão carregadas aqui pelo JavaScript -->
+        </div>
+    </div>
+
+    <script>
+        // Quiz data
+        const questions = [
+            {
+                category: "Microbiologia",
+                question: "Qual dos seguintes NÃO é um tipo de microrganismo estudado na Microbiologia?",
+                options: ["Bactérias", "Vírus", "Mamíferos", "Fungos"],
+                answer: "Mamíferos"
+            },
+            {
+                category: "Microbiologia",
+                question: "Organismos unicelulares que não possuem núcleo definido são chamados de:",
+                options: ["Eucariotos", "Procariotos", "Vírus", "Fungos"],
+                answer: "Procariotos"
+            },
+            {
+                category: "Microbiologia",
+                question: "Qual é a principal importância de algumas bactérias no ciclo do nitrogênio?",
+                options: ["Produção de oxigênio", "Fixação de nitrogênio", "Causa de doenças", "Decomposição de rochas"],
+                answer: "Fixação de nitrogênio"
+            },
+            {
+                category: "Microbiologia",
+                question: "Estruturas de resistência que permitem a algumas bactérias sobreviverem em condições adversas são chamadas de:",
+                options: ["Cápsulas", "Flagelos", "Esporos", "Plasmídeos"],
+                answer: "Esporos"
+            },
+            {
+                category: "Vírus",
+                question: "Uma característica fundamental dos vírus é que eles são:",
+                options: ["Células eucarióticas complexas", "Parasitas intracelulares obrigatórios", "Capazes de se reproduzir independentemente", "Organismos fotossintéticos"],
+                answer: "Parasitas intracelulares obrigatórios"
+            },
+            {
+                category: "Vírus",
+                question: "O material genético de um vírus pode ser:",
+                options: ["Apenas DNA", "Apenas RNA", "DNA ou RNA", "Proteína e carboidratos"],
+                answer: "DNA ou RNA"
+            },
+            {
+                category: "Vírus",
+                question: "A camada proteica que envolve o material genético viral é conhecida como:",
+                options: ["Envelope", "Membrana plasmática", "Capsídeo", "Parede celular"],
+                answer: "Capsídeo"
+            },
+            {
+                category: "Vírus",
+                question: "Qual ciclo viral resulta na lise (rompimento) da célula hospedeira?",
+                options: ["Ciclo lisogênico", "Ciclo de latência", "Ciclo lítico", "Ciclo de transcrição reversa"],
+                answer: "Ciclo lítico"
+            },
+            {
+                category: "Reino Plantae",
+                question: "Qual a principal característica que define os organismos do Reino Plantae?",
+                options: ["Serem heterotróficos", "Possuírem locomoção", "Realizarem fotossíntese", "Terem apenas uma célula"],
+                answer: "Realizarem fotossíntese"
+            },
+            {
+                category: "Reino Plantae",
+                question: "Qual grupo de plantas é avascular (não possui vasos condutores de seiva) e depende da água para a reprodução?",
+                options: ["Pteridófitas", "Angiospermas", "Briófitas", "Gimnospermas"],
+                answer: "Briófitas"
+            },
+            {
+                category: "Reino Plantae",
+                question: "A função primária das raízes em uma planta é:",
+                options: ["Realizar a fotossíntese", "Promover a polinização", "Absorver água e nutrientes do solo", "Produzir frutos"],
+                answer: "Absorver água e nutrientes do solo"
+            },
+            {
+                category: "Reino Plantae",
+                question: "O grupo de plantas que possui sementes protegidas por frutos e flores verdadeiras são as:",
+                options: ["Gimnospermas", "Pteridófitas", "Briófitas", "Angiospermas"],
+                answer: "Angiospermas"
+            },
+            {
+                category: "Características Gerais de Invertebrados e Vertebrados",
+                question: "A principal diferença entre invertebrados e vertebrados é a presença ou ausência de:",
+                options: ["Esqueleto interno", "Sistema digestório", "Coluna vertebral e crânio", "Órgãos reprodutores"],
+                answer: "Coluna vertebral e crânio"
+            },
+            {
+                category: "Características Gerais de Invertebrados e Vertebrados",
+                question: "Qual dos seguintes animais é um invertebrado?",
+                options: ["Peixe", "Cobra", "Borboleta", "Pássaro"],
+                answer: "Borboleta"
+            },
+            {
+                category: "Características Gerais de Invertebrados e Vertebrados",
+                question: "Qual classe de vertebrados é caracterizada por ter corpo coberto por penas e bico sem dentes?",
+                options: ["Répteis", "Anfíbios", "Aves", "Mamíferos"],
+                answer: "Aves"
+            },
+            {
+                category: "Características Gerais de Invertebrados e Vertebrados",
+                question: "Mamíferos são conhecidos por possuírem glândulas mamárias e por terem o corpo coberto por:",
+                options: ["Escamas", "Penas", "Pelos", "Placas córneas"],
+                answer: "Pelos"
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let selectedOption = null;
+        let isAnswerChecked = false;
+
+        const quizContent = document.getElementById('quiz-content');
+
+        /**
+         * Renderiza a pergunta atual e suas opções no DOM.
+         */
+        function displayQuestion() {
+            quizContent.innerHTML = ''; // Limpa o conteúdo anterior
+
+            if (currentQuestionIndex >= questions.length) {
+                showResults();
+                return;
+            }
+
+            const currentQuestion = questions[currentQuestionIndex];
+
+            // Exibição da categoria
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'text-sm text-gray-500 mb-2';
+            categoryDiv.innerHTML = `Categoria: <span class="font-semibold">${currentQuestion.category}</span>`;
+            quizContent.appendChild(categoryDiv);
+
+            // Contador de perguntas
+            const questionCounterDiv = document.createElement('div');
+            questionCounterDiv.className = 'text-lg font-medium text-gray-800 mb-4';
+            questionCounterDiv.textContent = `Pergunta ${currentQuestionIndex + 1} de ${questions.length}`;
+            quizContent.appendChild(questionCounterDiv);
+
+            // Texto da pergunta
+            const questionText = document.createElement('h2');
+            questionText.className = 'text-2xl font-semibold text-gray-900 mb-6 leading-relaxed';
+            questionText.textContent = currentQuestion.question;
+            quizContent.appendChild(questionText);
+
+            // Contêiner de opções
+            const optionsDiv = document.createElement('div');
+            optionsDiv.className = 'space-y-4 mb-6';
+            currentQuestion.options.forEach((option, index) => {
+                const optionButton = document.createElement('button');
+                optionButton.type = 'button';
+                optionButton.textContent = option;
+                optionButton.className = `
+                    w-full text-left py-3 px-5 rounded-lg border-2 transition duration-200 ease-in-out
+                    bg-gray-50 border-gray-300 text-gray-700 hover:bg-gray-100
+                `;
+                optionButton.addEventListener('click', () => handleOptionClick(optionButton, option));
+                optionsDiv.appendChild(optionButton);
+            });
+            quizContent.appendChild(optionsDiv);
+
+            // Contêiner de mensagem de feedback
+            const feedbackDiv = document.createElement('div');
+            feedbackDiv.id = 'feedback-message';
+            feedbackDiv.className = 'mt-4 p-3 rounded-lg text-center hidden';
+            quizContent.appendChild(feedbackDiv);
+
+            // Contêiner de botões de ação
+            const actionButtonsDiv = document.createElement('div');
+            actionButtonsDiv.className = 'mt-8 flex justify-end space-x-4';
+            quizContent.appendChild(actionButtonsDiv);
+
+            // Botão "Verificar Resposta"
+            const checkButton = document.createElement('button');
+            checkButton.id = 'check-answer-btn';
+            checkButton.textContent = 'Verificar Resposta';
+            checkButton.className = 'bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-5 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 shadow';
+            checkButton.disabled = true; // Desabilitado inicialmente
+            checkButton.addEventListener('click', handleCheckAnswer);
+            actionButtonsDiv.appendChild(checkButton);
+
+            // Botão "Próxima/Resultados" (inicialmente oculto)
+            const nextButton = document.createElement('button');
+            nextButton.id = 'next-question-btn';
+            nextButton.textContent = 'Próxima Pergunta';
+            nextButton.className = 'bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-5 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 shadow hidden';
+            nextButton.addEventListener('click', handleNextQuestion);
+            actionButtonsDiv.appendChild(nextButton);
+        }
+
+        /**
+         * Lida com o clique em um botão de opção.
+         * @param {HTMLButtonElement} clickedButton - O elemento do botão que foi clicado.
+         * @param {string} optionText - O conteúdo de texto da opção clicada.
+         */
+        function handleOptionClick(clickedButton, optionText) {
+            if (isAnswerChecked) return; // Impede a seleção após verificar a resposta
+
+            // Reinicia os estilos para todas as opções
+            const optionButtons = quizContent.querySelectorAll('.space-y-4 button');
+            optionButtons.forEach(btn => {
+                btn.classList.remove('bg-indigo-50', 'border-indigo-500', 'text-indigo-700');
+                btn.classList.add('bg-gray-50', 'border-gray-300', 'text-gray-700', 'hover:bg-gray-100');
+            });
+
+            // Aplica o estilo de seleção ao botão clicado
+            clickedButton.classList.remove('bg-gray-50', 'border-gray-300', 'text-gray-700', 'hover:bg-gray-100');
+            clickedButton.classList.add('bg-indigo-50', 'border-indigo-500', 'text-indigo-700');
+
+            selectedOption = optionText;
+            document.getElementById('check-answer-btn').disabled = false; // Habilita o botão de verificar
+        }
+
+        /**
+         * Verifica a resposta selecionada em relação à resposta correta.
+         */
+        function handleCheckAnswer() {
+            isAnswerChecked = true;
+            const currentQuestion = questions[currentQuestionIndex];
+            const feedbackDiv = document.getElementById('feedback-message');
+            const checkButton = document.getElementById('check-answer-btn');
+            const nextButton = document.getElementById('next-question-btn');
+            const optionButtons = quizContent.querySelectorAll('.space-y-4 button');
+
+            // Desabilita todos os botões de opção
+            optionButtons.forEach(btn => btn.disabled = true);
+
+            // Mostra o feedback
+            feedbackDiv.classList.remove('hidden');
+            if (selectedOption === currentQuestion.answer) {
+                score++;
+                feedbackDiv.textContent = 'Correto!';
+                feedbackDiv.classList.remove('bg-red-50', 'text-red-700');
+                feedbackDiv.classList.add('bg-green-50', 'text-green-700');
+            } else {
+                feedbackDiv.textContent = `Incorreto. A resposta correta é: "${currentQuestion.answer}"`;
+                feedbackDiv.classList.remove('bg-green-50', 'text-green-700');
+                feedbackDiv.classList.add('bg-red-50', 'text-red-700');
+            }
+
+            // Destaca as opções corretas e incorretas
+            optionButtons.forEach(btn => {
+                if (btn.textContent === currentQuestion.answer) {
+                    btn.classList.remove('bg-gray-50', 'border-gray-300', 'text-gray-700', 'bg-indigo-50', 'border-indigo-500', 'text-indigo-700');
+                    btn.classList.add('bg-green-100', 'border-green-500', 'text-green-800', 'ring-2', 'ring-green-500');
+                } else if (btn.textContent === selectedOption && selectedOption !== currentQuestion.answer) {
+                    btn.classList.remove('bg-gray-50', 'border-gray-300', 'text-gray-700', 'bg-indigo-50', 'border-indigo-500', 'text-indigo-700');
+                    btn.classList.add('bg-red-100', 'border-red-500', 'text-red-800');
+                }
+            });
+
+            // Oculta o botão de verificar, mostra o botão de próxima/resultados
+            checkButton.classList.add('hidden');
+            nextButton.classList.remove('hidden');
+            if (currentQuestionIndex === questions.length - 1) {
+                nextButton.textContent = 'Ver Resultados';
+            }
+        }
+
+        /**
+         * Avança para a próxima pergunta ou mostra os resultados finais.
+         */
+        function handleNextQuestion() {
+            currentQuestionIndex++;
+            selectedOption = null;
+            isAnswerChecked = false;
+            displayQuestion();
+        }
+
+        /**
+         * Exibe os resultados finais do quiz.
+         */
+        function showResults() {
+            quizContent.innerHTML = `
+                <div class="text-center">
+                    <h2 class="text-3xl font-bold text-indigo-700 mb-4">Quiz Concluído!</h2>
+                    <p class="text-xl text-gray-700 mb-6">
+                        Você acertou <span class="font-semibold text-blue-600">${score}</span> de <span class="font-semibold text-blue-600">${questions.length}</span> perguntas.
+                    </p>
+                    <button id="restart-quiz-btn"
+                        class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-xl transition duration-300 ease-in-out transform hover:scale-105 shadow-lg">
+                        Tentar Novamente
+                    </button>
+                </div>
+            `;
+            document.getElementById('restart-quiz-btn').addEventListener('click', restartQuiz);
+        }
+
+        /**
+         * Reinicia o quiz para o estado inicial.
+         */
+        function restartQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            selectedOption = null;
+            isAnswerChecked = false;
+            displayQuestion();
+        }
+
+        // Inicializa o quiz quando a página carrega
+        document.addEventListener('DOMContentLoaded', displayQuestion);
+    </script>
+</body>
+  </html>
